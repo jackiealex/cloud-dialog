@@ -25,6 +25,10 @@
 			quickClose: false,
 			content: '确认要删除当前报销单模版?',
 			width: 240,
+			offset: {
+				left: 0,
+				top: 0
+			},
 			className: 'text-align',
 			buttonAlign: 'center',
 			buttons: [
@@ -35,8 +39,12 @@
 				// 	}
 				// }
 			],
-			ok: null,
-			cancel: null,
+			ok: function  () {
+				return true;
+			},
+			cancel: function  () {
+				return true;
+			},
 			onShow: function  () {
 				// body...
 			},
@@ -47,9 +55,9 @@
 				
 			},
 			okDisabled: false,
-			okValue: '',
+			okValue: '确定',
 			cancelDisabled: false,
-			cancelValue: ''
+			cancelValue: '取消'
 		}, opts);
 		this.$mask = $(dialogTemplate);
 		this.$el = this.$mask.find('.cloud-bx-dialog');
@@ -81,6 +89,15 @@
 		addButtons: function () {
 			var buttons = this.options.buttons;
 
+			if(this.options.cancel) {
+				var cancelButton = {
+					text: this.options.cancelValue,
+					disabled: this.options.cancelDisabled,
+					handler: this.options.cancel
+				}
+				buttons.push(cancelButton);
+			}
+
 			if(this.options.ok) {
 				var okButton = {
 					text: this.options.okValue,
@@ -89,15 +106,6 @@
 					className: 'positive'
 				}
 				buttons.push(okButton);
-			}
-
-			if(this.options.cancel) {
-				var cancelButton = {
-					text: this.cancelValue,
-					disabled: this.options.cancelDisabled,
-					handler: this.options.cancel
-				}
-				buttons.push(cancelButton);
 			}
 
 			for(var i=0;i<buttons.length;i++) {
@@ -152,7 +160,7 @@
 		},
 		content: function  (content) {
 			if(content) {
-				this.$el.find('.dialog-body').html(this.options.content);
+				this.$el.find('.dialog-body').html(content);
 			} else {
 				return this.$el.find('.dialog-body').html();
 			}
@@ -172,7 +180,9 @@
 				var handler = _self.options.buttons[index].handler || function  () {
 					// body...
 				};
-				handler.call(e.currentTarget, e);
+				if(handler.call(_self, e)) {
+					_self.$el.find('.close').trigger('click');
+				}
 			});
 
 			// can quick close
